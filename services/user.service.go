@@ -1,10 +1,10 @@
 package services
 
 import (
+	"fmt"
 	"net/http"
 	"smashil-ranked/errors"
 	"smashil-ranked/repositories"
-	"fmt"
 )
 
 type UserService struct {
@@ -29,7 +29,7 @@ func (s *UserService) AddUser(discordId string, tag string) (error){
 }
 
 func (s *UserService) doesUserExist(discordId string)(bool, error) {
-	count, err := s.repo.GetPlayerById(discordId)
+	count, err := s.repo.GetUserById(discordId)
 
 	if (err != nil){
 		return false, err
