@@ -15,7 +15,7 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 	return &UserService{repo}
 }
 
-func (s *UserService) AddUser(discordId string, tag string) (error){
+func (s *UserService) AddUser(discordId string, username string) (error){
 	
 
 	if doesUserExist, err := s.doesUserExist(discordId); err != nil {
@@ -25,7 +25,7 @@ func (s *UserService) AddUser(discordId string, tag string) (error){
 	}
 
 
-	return s.repo.CreatePlayer(discordId, tag)
+	return s.repo.CreatePlayer(discordId, username)
 }
 
 func (s *UserService) doesUserExist(discordId string)(bool, error) {
