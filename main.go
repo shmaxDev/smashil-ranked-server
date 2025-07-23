@@ -8,23 +8,26 @@ import (
 	"smashil-ranked/config"
 	"smashil-ranked/handlers"
 	internalHttp "smashil-ranked/http"
+	"smashil-ranked/queueLoop"
 	"smashil-ranked/repositories"
 	"smashil-ranked/services"
 
 	_ "github.com/lib/pq"
 )
 
-func main (){
+func main() {
 	vars := config.GetEnv()
 	db, err := sql.Open(vars.DbType, vars.DbConnectionString)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)
 	}
+
+	queueLoop.StartLoop()
 
 	userRepo := repositories.NewUserRepository(db)
 	userService := services.NewUserService(userRepo)
