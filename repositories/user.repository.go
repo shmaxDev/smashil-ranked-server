@@ -14,13 +14,15 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 func (r *UserRepository) CreatePlayer(id string, discordUsername string) (error){
-	return r.DB.QueryRow("INSERT INTO players (discord_id, discord_tag) VALUES ($1, $2)", id, discordUsername).Scan()
+	_, err := r.DB.Exec("INSERT INTO players (discord_id, discord_username) VALUES ($1, $2)", id, discordUsername)
+
+	return err
 }
 
 func (r *UserRepository) GetUserById(id string) (int, error){
 	var count int
 
-	err := r.DB.QueryRow("SELECT count(*) FROM players WHERE discord_id=$1", id).Scan(count)
+	err := r.DB.QueryRow("SELECT COUNT(*) FROM players WHERE discord_id=$1", id).Scan(&count)
 
 	return count, err
 }

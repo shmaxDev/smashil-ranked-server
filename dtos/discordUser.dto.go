@@ -1,6 +1,6 @@
 package dtos
 
 type UserDto struct {
-		Id string `json:"id"`
-		Tag string `json:"tag"`
-	}
+	Id       string `json:"id"  validate:"required"`
+	Username string `json:"username" validate:"required"`
+}
