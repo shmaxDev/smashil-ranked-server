@@ -9,4 +9,5 @@ func SetupRouter(mux *http.ServeMux, userHandler *handlers.UserHandler) {
 	usersGroup := NewRouterGroup("/users", mux)
 
 	usersGroup.HandleFunc("POST /", userHandler.HandlePostPlayer)
+	usersGroup.HandleFunc("POST /queue", userHandler.HandleAddToQueue)
 }

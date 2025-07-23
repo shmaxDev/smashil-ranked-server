@@ -15,8 +15,7 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 	return &UserService{repo}
 }
 
-func (s *UserService) AddUser(discordId string, username string) (error){
-	
+func (s *UserService) AddUser(discordId string, username string) error {
 
 	if doesUserExist, err := s.doesUserExist(discordId); err != nil {
 		return err
@@ -24,14 +23,13 @@ func (s *UserService) AddUser(discordId string, username string) (error){
 		return errors.NewHttpError(http.StatusConflict, fmt.Sprintf("User with id %s already exists", discordId), nil)
 	}
 
-
 	return s.repo.CreatePlayer(discordId, username)
 }
 
-func (s *UserService) doesUserExist(discordId string)(bool, error) {
+func (s *UserService) doesUserExist(discordId string) (bool, error) {
 	count, err := s.repo.GetUserById(discordId)
 
-	if (err != nil){
+	if err != nil {
 		return false, err
 	}
 
