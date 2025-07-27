@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"smashil-ranked/dtos"
@@ -27,30 +26,13 @@ func NewUserHandler(u *services.UserService) *UserHandler {
 
 func (h *UserHandler) HandlePostPlayer(w http.ResponseWriter, r *http.Request) {
 	var user dtos.UserDto
-	validate = validator.New()
 
-	err := json.NewDecoder(r.Body).Decode(&user)
-
+	err := DecodeAndValidate(&user, &w, r)
 	if err != nil {
-		if errors.Is(err, io.EOF) {
-			http.Error(w, "Request body is empty", http.StatusBadRequest)
-			return
-		}
-
-		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = validate.Struct(&user)
-
-	if err != nil {
-		fmt.Println(err.Error())
-
-		http.Error(w, "Bad request: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = h.UserService.AddUser(user.Id, user.Username)
+	err = h.UserService.AddUser(*user.Id, *user.Username)
 
 	if err != nil {
 		var httpErr *internalErrors.HTTPError
@@ -81,7 +63,7 @@ func (h *UserHandler) HandleAddToQueue(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var player = queueloop.Player{UserId: nig.Name, Elo: nig.Elo, TimeJoined: time.Now()}
+	var player = queueloop.Player{UserId: *nig.UserId, Elo: *nig.Elo, TimeJoined: time.Now()}
 
 	queueloop.Add(player)
 }

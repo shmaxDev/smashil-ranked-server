@@ -24,6 +24,9 @@ func (g *RouterGroup) HandleFunc(pattern string, handlerFunc http.HandlerFunc) {
 
 	method := parts[0]
 	route := parts[1]
+	if strings.HasSuffix(route, "/") {
+		route = strings.TrimRight(route, "/")
+	}
 
 	fullRoute := g.prefix + route
 
