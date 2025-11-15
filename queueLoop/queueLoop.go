@@ -45,6 +45,12 @@ func remove(id string) {
 	}
 }
 
+var onMatchFound func(p1, p2 Player)
+
+func SetOnMatchFoundCallback(cb func(p1, p2 Player)) {
+	onMatchFound = cb
+}
+
 func StartLoop() {
 	go func() {
 		for {
@@ -52,9 +58,13 @@ func StartLoop() {
 			p1, p2 := tryToFindAMatch()
 			if p1 != nil && p2 != nil {
 				player1, player2 := *p1, *p2
+				if onMatchFound != nil {
+					onMatchFound(*p1, *p2)
+				}
 				remove(player1.UserId)
 				remove(player2.UserId)
 			}
+
 			mu.Unlock()
 			time.Sleep(1 * time.Second)
 		}
@@ -66,24 +76,27 @@ func tryToFindAMatch() (*Player, *Player) {
 		return nil, nil
 	}
 
-	copied := make([]Player, len(queue))
-	copy(copied, queue)
+	indices := make([]int, len(queue))
+	for i := range queue {
+		indices[i] = i
+	}
 
-	sort.Slice(copied, func(i, j int) bool {
-		return copied[i].TimeJoined.Before(copied[j].TimeJoined)
+	sort.Slice(indices, func(i, j int) bool {
+		return queue[indices[i]].TimeJoined.Before(queue[indices[j]].TimeJoined)
 	})
 
 	now := time.Now()
 
-	for i, p1 := range copied {
+	for i, idx1 := range indices {
+		p1 := &queue[idx1]
 		waitTime := now.Sub(p1.TimeJoined).Seconds()
-		tolerance := int(10 + waitTime/30*5)
-		fmt.Println(tolerance)
-		for j := i + 1; j < len(copied); j++ {
-			p2 := copied[j]
-			fmt.Println(p1.Elo, p2.Elo)
-			if (p1.UserId != p2.UserId) && int(math.Abs(float64(p1.Elo-p2.Elo))) <= tolerance {
-				return &p1, &p2
+		tolerance := int(100 + waitTime/30*5)
+		for _, idx2 := range indices[i+1:] {
+			p2 := &queue[idx2]
+			fmt.Printf("Checking %s vs %s, Elo diff: %d, tolerance: %d\n",
+				p1.UserId, p2.UserId, int(math.Abs(float64(p1.Elo-p2.Elo))), tolerance)
+			if p1.UserId != p2.UserId && int(math.Abs(float64(p1.Elo-p2.Elo))) <= tolerance {
+				return p1, p2
 			}
 		}
 	}

@@ -36,6 +36,8 @@ func main() {
 	matchesService := services.NewMatchService(matchesRepo)
 	matchesHandler := handlers.NewMatchHandler(matchesService)
 
+	queueLoop.SetOnMatchFoundCallback(handlers.OnMatchFound)
+
 	mux := http.NewServeMux()
 
 	

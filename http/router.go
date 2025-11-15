@@ -9,6 +9,7 @@ func SetupRouter(mux *http.ServeMux, userHandler *handlers.UserHandler, matchHan
 	usersGroup := NewRouterGroup("/users", mux)
 	usersGroup.HandleFunc("POST /", userHandler.HandlePostPlayer)
 	usersGroup.HandleFunc("POST /queue", userHandler.HandleAddToQueue)
+	mux.HandleFunc("/ws", handlers.HandleBotSocket)
 
 	matchesGroup := NewRouterGroup("/matches", mux)
 	matchesGroup.HandleFunc("POST /report", matchHandler.ReportMatchHandler)
